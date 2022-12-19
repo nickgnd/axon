@@ -1640,12 +1640,14 @@ defmodule Axon.Loop do
       Logger.debug("Axon.Loop finished initializing loop state in #{us_to_ms(time)}ms")
     end
 
-    final_metrics_map =
-      for i <- epoch_start..epoch_end do
-        {i, Map.new(metric_fns, fn {k, _} -> {k, Nx.tensor(0)} end)}
-      end
-      |> Map.new()
-      |> Map.merge(loop_state.metrics)
+    # final_metrics_map =
+    #   for i <- epoch_start..epoch_end do
+    #     {i, Map.new(metric_fns, fn {k, _} -> {k, Nx.tensor(0)} end)}
+    #   end
+    #   |> Map.new()
+    #   |> Map.merge(loop_state.metrics)
+
+    final_metrics_map = loop_state.metrics
 
     # TODO: Can we infer here?
     zero_metrics =
@@ -1712,8 +1714,9 @@ defmodule Axon.Loop do
                             |> Map.take(Map.keys(metric_fns))
                             |> Map.new(fn {k, v} -> {k, zeros_like(v)} end)
 
-                          final_metrics_map =
-                            Map.replace!(final_metrics_map, epoch, state.metrics)
+                          # final_metrics_map =
+                          #   Map.replace!(final_metrics_map, epoch, state.metrics)
+                          final_metrics_map = Map.put(final_metrics_map, epoch, state.metrics)
 
                           {:cont,
                            {batch_fn, final_metrics_map,
